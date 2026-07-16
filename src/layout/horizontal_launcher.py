@@ -23,6 +23,6 @@ class HorizontalLauncher(Horizontal):
         self.query_one(TableList).select_first()
         self.query_one(TableDetails).update_table(self.items[0])
 
-    def on_list_view_selected(self, event: ListView.Selected) -> None:
+    def on_list_view_highlighted(self, event: ListView.Highlighted) -> None:
         if isinstance(event.item, LauncherListItem):
             self.query_one(TableDetails).update_table(event.item.item)
