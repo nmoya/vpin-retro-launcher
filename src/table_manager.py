@@ -39,7 +39,7 @@ class TableManager:
                 items.append(TableItem(info=info, scores=scores))
                 progress.advance(task_id)
 
-        return items
+        return sorted(items, key=lambda item: item.info.name.lower())
 
     def _table_paths(self) -> list[str]:
         table_paths = []
