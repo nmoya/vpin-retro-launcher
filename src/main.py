@@ -32,7 +32,33 @@ class VPinRetroLauncher(App[None]):
     }
 
     #table-details-pane {
-        padding: 1 2;
+        padding: 1;
+    }
+
+    .details-title {
+        width: 100%;
+        margin-bottom: 1;
+        color: $text;
+        text-style: bold;
+    }
+
+    .details-card {
+        width: 100%;
+        margin-bottom: 1;
+        padding: 1;
+        border: tall $accent;
+        background: $surface;
+    }
+
+    .details-section-title {
+        margin-top: 1;
+        color: $accent;
+        text-style: bold;
+    }
+
+    .details-body {
+        margin-top: 1;
+        width: 100%;
     }
 
     #table-list {
