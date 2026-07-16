@@ -7,7 +7,6 @@ from config import Config
 from layout.horizontal_launcher import HorizontalLauncher
 from table_manager import TableManager
 
-
 LOG_FORMAT = "%(asctime)s %(levelname)s [%(name)s] %(message)s"
 
 

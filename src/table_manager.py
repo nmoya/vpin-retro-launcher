@@ -1,5 +1,7 @@
 import os
 
+from rich.progress import BarColumn, Progress, TextColumn
+
 from config import Config
 from data import TableItem
 from vpxtool_bridge import VPXToolBridge
@@ -12,15 +14,40 @@ class TableManager:
         self.items = self.load_tables()
 
     def load_tables(self) -> list[TableItem]:
+        table_paths = self._table_paths()
         items = []
+
+        with Progress(
+            TextColumn("[bold blue]{task.description}"),
+            BarColumn(),
+            TextColumn("Total: {task.total}"),
+            TextColumn("Current: {task.fields[current_index]}"),
+            TextColumn("Name: {task.fields[current_name]}"),
+        ) as progress:
+            task_id = progress.add_task(
+                "Loading VPX tables",
+                total=len(table_paths),
+                current_index=0,
+                current_name="",
+            )
+
+            for index, path in enumerate(table_paths, start=1):
+                progress.update(task_id, current_index=index, current_name=os.path.basename(path))
+                info = self.vpxtool_bridge.info(path)
+                progress.update(task_id, current_name=info.name or os.path.basename(path))
+                scores = self.vpxtool_bridge.scores(path)
+                items.append(TableItem(info=info, scores=scores))
+                progress.advance(task_id)
+
+        return items
+
+    def _table_paths(self) -> list[str]:
+        table_paths = []
         for root, _, files in os.walk(self.tables_root):
             for file in files:
                 if file.endswith(".vpx"):
-                    path = os.path.join(root, file)
-                    info = self.vpxtool_bridge.info(path)
-                    scores = self.vpxtool_bridge.scores(path)
-                    items.append(TableItem(info=info, scores=scores))
-        return items
+                    table_paths.append(os.path.join(root, file))
+        return sorted(table_paths)
 
 
 if __name__ == "__main__":
