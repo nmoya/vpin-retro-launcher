@@ -1,7 +1,12 @@
-from data import TableInfo, TableScore
 import json
-import subprocess
+import logging
 import os
+import subprocess
+
+from data import TableInfo, TableScore
+
+
+logger = logging.getLogger(__name__)
 
 
 class VPXToolBridge:
@@ -16,8 +21,13 @@ class VPXToolBridge:
     def _parse_info_output(self, table_path: str, info_path: str) -> TableInfo:
         with open(info_path, "r") as f:
             data = json.load(f)
+
+        table_name = (data.get("table_name") or "").strip()
+        if not table_name:
+            logger.warning("Missing table name for table: %s", table_path)
+
         return TableInfo(
-            name=data.get("table_name", ""),
+            name=table_name,
             vpx_version=data.get("vpx_version", ""),
             version=data.get("table_version", ""),
             published_date=data.get("table_save_date", ""),
@@ -39,7 +49,9 @@ class VPXToolBridge:
     def scores(self, table_path: str) -> list[TableScore]:
         try:
             output = self.execute(["scores", "show", table_path])
-        except subprocess.CalledProcessError:
+        except subprocess.CalledProcessError as error:
+            reason = error.stderr.strip() if error.stderr else "vpxtool returned no score data"
+            logger.warning("Missing high scores for table %s: %s", table_path, reason)
             return []
 
         lines = output.strip().splitlines()
@@ -50,6 +62,10 @@ class VPXToolBridge:
             if len(non_empty_parts) < 3:
                 continue
             scores.append(TableScore(name=non_empty_parts[0], initials=non_empty_parts[1], score=non_empty_parts[2]))
+
+        if not scores:
+            logger.warning("Missing high scores for table: %s", table_path)
+
         return scores
 
 

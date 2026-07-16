@@ -1,9 +1,14 @@
+import logging
+
 from textual.app import App, ComposeResult
 from textual.widgets import Header
 
 from config import Config
 from layout.horizontal_launcher import HorizontalLauncher
 from table_manager import TableManager
+
+
+LOG_FORMAT = "%(asctime)s %(levelname)s [%(name)s] %(message)s"
 
 
 class VPinRetroLauncher(App[None]):
@@ -50,6 +55,8 @@ class VPinRetroLauncher(App[None]):
 
 
 def main() -> None:
+    logging.basicConfig(level=logging.INFO, format=LOG_FORMAT)
+
     config = Config("./config.json")
     table_manager = TableManager(config)
     VPinRetroLauncher(table_manager).run()
