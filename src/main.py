@@ -6,7 +6,7 @@ from textual.css.query import NoMatches
 from textual.widgets import Header, Static
 
 from config import Config
-from gamepad_controller import GamepadController
+from gamepad_controller import GamepadController, GamepadEvent
 from layout.horizontal_launcher import HorizontalLauncher
 from layout.table_list import TableListView
 from table_manager import TableManager
@@ -123,7 +123,7 @@ class VPinRetroLauncher(App[None]):
         self.table_manager = table_manager
         self.data_store = data_store
         self.config = config
-        self.gamepad_controller: GamepadController | None = None
+        self.gamepad_controller = GamepadController()
         self.gamepad_timer = None
 
     def compose(self) -> ComposeResult:
@@ -133,29 +133,37 @@ class VPinRetroLauncher(App[None]):
             self.config.vpinball_path,
             self.table_manager.vpxtool_bridge,
             self.data_store,
+            self.gamepad_controller,
         )
         yield Static(
             "Up: Up / K / W / L / R2 / D-pad / Left Stick    "
             "Down: Down / J / S / A / L2 / D-pad / Left Stick    "
-            "Launch: Enter / Circle",
+            "Launch: Enter / Circle    "
+            "In Game: Select quits",
             id="controls-footer",
         )
 
     def on_mount(self) -> None:
-        self.gamepad_controller = GamepadController(
-            cursor_down=self._gamepad_cursor_down,
-            cursor_up=self._gamepad_cursor_up,
-            launch=self._gamepad_launch,
-        )
         self.gamepad_controller.start()
-        self.gamepad_timer = self.set_interval(GAMEPAD_POLL_SECONDS, self.gamepad_controller.poll)
+        self.gamepad_timer = self.set_interval(GAMEPAD_POLL_SECONDS, self._poll_gamepad)
 
     def on_unmount(self) -> None:
         if self.gamepad_timer is not None:
             self.gamepad_timer.stop()
 
-        if self.gamepad_controller is not None:
-            self.gamepad_controller.stop()
+        self.gamepad_controller.stop()
+
+    def _poll_gamepad(self) -> None:
+        for event in self.gamepad_controller.poll_events():
+            self._handle_gamepad_event(event)
+
+    def _handle_gamepad_event(self, event: GamepadEvent) -> None:
+        if event == GamepadEvent.CURSOR_DOWN:
+            self._gamepad_cursor_down()
+        elif event == GamepadEvent.CURSOR_UP:
+            self._gamepad_cursor_up()
+        elif event == GamepadEvent.LAUNCH:
+            self._gamepad_launch()
 
     def _gamepad_cursor_down(self) -> None:
         list_view = self._table_list_view()

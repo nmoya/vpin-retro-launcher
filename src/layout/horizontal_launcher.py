@@ -1,7 +1,6 @@
 from dataclasses import replace
 import hashlib
 import logging
-import subprocess
 import time
 
 from textual.app import ComposeResult
@@ -9,9 +8,11 @@ from textual.containers import Horizontal
 from textual.widgets import ListView
 
 from data import TableItem
+from gamepad_controller import GamepadController
 from layout.table_details import TableDetails
 from layout.table_list import LauncherListItem, TableList, TableListView
 from vpin_data_store import VPinDataStore, utc_now
+from vpinball_runner import VPinballRunner
 from vpxtool_bridge import VPXToolBridge
 
 
@@ -25,12 +26,14 @@ class HorizontalLauncher(Horizontal):
         vpinball_path: str,
         vpxtool_bridge: VPXToolBridge,
         data_store: VPinDataStore,
+        gamepad_controller: GamepadController,
     ) -> None:
         super().__init__(id="launcher")
         self.items = items
         self.vpinball_path = vpinball_path
         self.vpxtool_bridge = vpxtool_bridge
         self.data_store = data_store
+        self.gamepad_controller = gamepad_controller
 
     def compose(self) -> ComposeResult:
         yield TableList(self.items)
@@ -77,7 +80,7 @@ class HorizontalLauncher(Horizontal):
         start_time = time.monotonic()
 
         with self.app.suspend():
-            subprocess.run([self.vpinball_path, table_path], check=False)
+            VPinballRunner(self.vpinball_path, self.gamepad_controller.poll_events).run(table_path)
 
         play_seconds = int(time.monotonic() - start_time)
         self.data_store.record_play_time(current_md5, play_seconds)
