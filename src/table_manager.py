@@ -5,14 +5,16 @@ from pathlib import Path
 from rich.progress import BarColumn, Progress, TextColumn
 
 from config import Config
+from cover_renderer import CoverRenderer
 from data import TableItem
 from vpxtool_bridge import VPXToolBridge
 
 
 class TableManager:
-    def __init__(self, config: Config) -> None:
+    def __init__(self, config: Config, cover_renderer: CoverRenderer) -> None:
         self.tables_root = config.tables_root
         self.vpxtool_bridge = VPXToolBridge(config.vpxtool_path)
+        self.cover_renderer = cover_renderer
         self.items = self.load_tables()
 
     def load_tables(self) -> list[TableItem]:
@@ -39,7 +41,11 @@ class TableManager:
                 info = self.vpxtool_bridge.info(path)
                 progress.update(task_id, current_name=info.name or os.path.basename(path))
                 scores = self.vpxtool_bridge.scores(path)
-                items.append(TableItem(info=info, scores=scores, md5=table_md5, cover_path=self._cover_path(path)))
+                cover_path = self._cover_path(path)
+                if cover_path:
+                    progress.update(task_id, current_name=f"Cover: {info.name or os.path.basename(path)}")
+                    self.cover_renderer.precache(cover_path)
+                items.append(TableItem(info=info, scores=scores, md5=table_md5, cover_path=cover_path))
                 progress.advance(task_id)
 
         return sorted(items, key=lambda item: item.info.name.lower())

@@ -1,6 +1,7 @@
 import hashlib
 from pathlib import Path
 
+from data import TableInfo
 from table_manager import TableManager
 
 
@@ -62,3 +63,40 @@ def test_cover_path_returns_none_when_missing(tmp_path):
     manager = object.__new__(TableManager)
 
     assert manager._cover_path(str(table)) is None
+
+
+def test_load_tables_precaches_cover_art(tmp_path):
+    table = tmp_path / "table.vpx"
+    cover = tmp_path / "cover.jpg"
+    table.write_text("vpx", encoding="utf-8")
+    cover.write_text("cover", encoding="utf-8")
+    precached = []
+
+    class FakeVPXToolBridge:
+        def info(self, table_path):
+            return TableInfo(
+                name="Table",
+                vpx_version="",
+                version="",
+                published_date="",
+                revision="",
+                description="",
+                path=table_path,
+            )
+
+        def scores(self, table_path):
+            return []
+
+    class FakeCoverRenderer:
+        def precache(self, cover_path):
+            precached.append(cover_path)
+
+    manager = object.__new__(TableManager)
+    manager.tables_root = str(tmp_path)
+    manager.vpxtool_bridge = FakeVPXToolBridge()
+    manager.cover_renderer = FakeCoverRenderer()
+
+    items = manager.load_tables()
+
+    assert precached == [str(cover)]
+    assert items[0].cover_path == str(cover)

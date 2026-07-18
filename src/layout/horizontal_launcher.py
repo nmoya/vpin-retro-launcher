@@ -7,6 +7,7 @@ from textual.app import ComposeResult
 from textual.containers import Horizontal
 from textual.widgets import ListView
 
+from cover_renderer import CoverRenderer
 from data import TableItem
 from gamepad_controller import GamepadController
 from layout.table_details import TableDetails
@@ -27,6 +28,7 @@ class HorizontalLauncher(Horizontal):
         vpxtool_bridge: VPXToolBridge,
         data_store: VPinDataStore,
         gamepad_controller: GamepadController,
+        cover_renderer: CoverRenderer,
     ) -> None:
         super().__init__(id="launcher")
         self.items = items
@@ -34,10 +36,11 @@ class HorizontalLauncher(Horizontal):
         self.vpxtool_bridge = vpxtool_bridge
         self.data_store = data_store
         self.gamepad_controller = gamepad_controller
+        self.cover_renderer = cover_renderer
 
     def compose(self) -> ComposeResult:
         yield TableList(self.items)
-        yield TableDetails()
+        yield TableDetails(self.cover_renderer)
 
     def on_mount(self) -> None:
         if not self.items:

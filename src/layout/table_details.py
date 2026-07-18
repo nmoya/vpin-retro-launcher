@@ -14,9 +14,9 @@ from vpin_data_store import TableStats
 
 
 class TableDetails(VerticalScroll):
-    def __init__(self) -> None:
+    def __init__(self, cover_renderer: CoverRenderer) -> None:
         super().__init__(id="table-details-pane")
-        self.cover_renderer = CoverRenderer()
+        self.cover_renderer = cover_renderer
 
     def compose(self) -> ComposeResult:
         yield Static(id="table-title", classes="details-title")

@@ -6,6 +6,7 @@ from textual.css.query import NoMatches
 from textual.widgets import Header, Static
 
 from config import Config
+from cover_renderer import CoverRenderer
 from gamepad_controller import GamepadController, GamepadEvent
 from layout.horizontal_launcher import HorizontalLauncher
 from layout.table_list import TableListView
@@ -118,11 +119,18 @@ class VPinRetroLauncher(App[None]):
     }}
     """
 
-    def __init__(self, table_manager: TableManager, data_store: VPinDataStore, config: Config) -> None:
+    def __init__(
+        self,
+        table_manager: TableManager,
+        data_store: VPinDataStore,
+        config: Config,
+        cover_renderer: CoverRenderer,
+    ) -> None:
         super().__init__()
         self.table_manager = table_manager
         self.data_store = data_store
         self.config = config
+        self.cover_renderer = cover_renderer
         self.gamepad_controller = GamepadController()
         self.gamepad_timer = None
 
@@ -134,6 +142,7 @@ class VPinRetroLauncher(App[None]):
             self.table_manager.vpxtool_bridge,
             self.data_store,
             self.gamepad_controller,
+            self.cover_renderer,
         )
         yield Static(
             "Up: Up / K / W / L / R2 / D-pad / Left Stick    "
@@ -192,12 +201,13 @@ def main() -> None:
     logging.basicConfig(level=log_level, format=LOG_FORMAT)
 
     config = Config("./config.json")
-    table_manager = TableManager(config)
+    cover_renderer = CoverRenderer(config.chafa_path, width=config.cover_art_width)
+    table_manager = TableManager(config, cover_renderer)
     data_store = VPinDataStore("./vpin_data.json")
     for item in table_manager.items:
         data_store.import_table(item.md5, item.info.name or item.info.path, item.scores)
 
-    VPinRetroLauncher(table_manager, data_store, config).run()
+    VPinRetroLauncher(table_manager, data_store, config, cover_renderer).run()
 
 
 if __name__ == "__main__":

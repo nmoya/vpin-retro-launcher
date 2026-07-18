@@ -3,6 +3,7 @@ __pycache__/
 *.py[codz]
 *$py.class
 vpin_data.json
+.vpin_cache/
 
 # C extensions
 *.so

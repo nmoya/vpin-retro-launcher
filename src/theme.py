@@ -14,6 +14,6 @@ SECTION_TITLE_TEXT = "#d0d0d0"
 MUTED_TEXT = "#808080"
 
 # Rich-rendered details
-STATS_TITLE_TEXT = "cyan"
+STATS_TITLE_TEXT = "white"
 HIGH_SCORE_TITLE_TEXT = "yellow"
 TOP_HIGH_SCORE_TEXT = "green"
