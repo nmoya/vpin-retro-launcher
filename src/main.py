@@ -6,6 +6,7 @@ from textual.widgets import Header
 from config import Config
 from layout.horizontal_launcher import HorizontalLauncher
 from table_manager import TableManager
+from vpin_data_store import VPinDataStore
 
 LOG_FORMAT = "%(asctime)s %(levelname)s [%(name)s] %(message)s"
 
@@ -70,13 +71,20 @@ class VPinRetroLauncher(App[None]):
     }
     """
 
-    def __init__(self, table_manager: TableManager) -> None:
+    def __init__(self, table_manager: TableManager, data_store: VPinDataStore, config: Config) -> None:
         super().__init__()
         self.table_manager = table_manager
+        self.data_store = data_store
+        self.config = config
 
     def compose(self) -> ComposeResult:
         yield Header(show_clock=True)
-        yield HorizontalLauncher(self.table_manager.items)
+        yield HorizontalLauncher(
+            self.table_manager.items,
+            self.config.vpinball_path,
+            self.table_manager.vpxtool_bridge,
+            self.data_store,
+        )
 
 
 def main() -> None:
@@ -84,7 +92,11 @@ def main() -> None:
 
     config = Config("./config.json")
     table_manager = TableManager(config)
-    VPinRetroLauncher(table_manager).run()
+    data_store = VPinDataStore("./vpin_data.json")
+    for item in table_manager.items:
+        data_store.import_table(item.md5, item.info.name or item.info.path, item.scores)
+
+    VPinRetroLauncher(table_manager, data_store, config).run()
 
 
 if __name__ == "__main__":

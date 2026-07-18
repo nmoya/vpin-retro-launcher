@@ -39,3 +39,4 @@ class TableScore:
 class TableItem:
     info: TableInfo
     scores: list[TableScore]
+    md5: str

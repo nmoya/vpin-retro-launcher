@@ -1,3 +1,4 @@
+import hashlib
 import os
 
 from rich.progress import BarColumn, Progress, TextColumn
@@ -33,10 +34,11 @@ class TableManager:
 
             for index, path in enumerate(table_paths, start=1):
                 progress.update(task_id, current_index=index, current_name=os.path.basename(path))
+                table_md5 = self._md5(path)
                 info = self.vpxtool_bridge.info(path)
                 progress.update(task_id, current_name=info.name or os.path.basename(path))
                 scores = self.vpxtool_bridge.scores(path)
-                items.append(TableItem(info=info, scores=scores))
+                items.append(TableItem(info=info, scores=scores, md5=table_md5))
                 progress.advance(task_id)
 
         return sorted(items, key=lambda item: item.info.name.lower())
@@ -48,6 +50,13 @@ class TableManager:
                 if file.endswith(".vpx"):
                     table_paths.append(os.path.join(root, file))
         return sorted(table_paths)
+
+    def _md5(self, path: str) -> str:
+        digest = hashlib.md5()
+        with open(path, "rb") as file:
+            for chunk in iter(lambda: file.read(1024 * 1024), b""):
+                digest.update(chunk)
+        return digest.hexdigest()
 
 
 if __name__ == "__main__":

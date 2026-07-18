@@ -8,6 +8,7 @@ class Config:
         self.data = self.load_config()
         self._orientation = self.data.get("orientation", "horizontal")
         self._vpxtool_path = self.data.get("vpxtool_path", "")
+        self._vpinball_path = self.data.get("vpinball_path", "")
         self._tables_root = self.data.get("tables_root", "")
 
     def load_config(self):
@@ -18,41 +19,40 @@ class Config:
             return {}
 
     def is_valid(self):
-        return (
-            self.orientation in ["horizontal", "vertical"]
-            and os.path.isfile(self.vpxtool_path)
-            and os.path.isdir(self.tables_root)
-        )
+        try:
+            self.orientation
+            self.vpxtool_path
+            self.vpinball_path
+            self.tables_root
+        except ValueError:
+            return False
+
+        return True
 
     @property
     def orientation(self):
-        return self._orientation
-
-    @orientation.setter
-    def orientation(self, value: str):
-        if value in ["horizontal", "vertical"]:
-            self._orientation = value
-        else:
+        if self._orientation not in ["horizontal", "vertical"]:
             raise ValueError("Invalid orientation. Must be 'horizontal' or 'vertical'.")
+
+        return self._orientation
 
     @property
     def vpxtool_path(self):
+        if not os.path.isfile(self._vpxtool_path):
+            raise ValueError("Invalid vpxtool path. Must be a valid file path.")
+
         return self._vpxtool_path
 
-    @vpxtool_path.setter
-    def vpxtool_path(self, value: str):
-        if os.path.isfile(value):
-            self._vpxtool_path = value
-        else:
-            raise ValueError("Invalid vpxtool path. Must be a valid file path.")
+    @property
+    def vpinball_path(self):
+        if not os.path.isfile(self._vpinball_path):
+            raise ValueError("Invalid vpinball path. Must be a valid file path.")
+
+        return self._vpinball_path
 
     @property
     def tables_root(self):
-        return self._tables_root
-
-    @tables_root.setter
-    def tables_root(self, value: str):
-        if os.path.isdir(value):
-            self._tables_root = value
-        else:
+        if not os.path.isdir(self._tables_root):
             raise ValueError("Invalid tables root. Must be a valid directory path.")
+
+        return self._tables_root

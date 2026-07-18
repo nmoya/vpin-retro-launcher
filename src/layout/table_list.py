@@ -1,5 +1,6 @@
 from textual.app import ComposeResult
 from textual.containers import VerticalScroll
+from textual.message import Message
 from textual.widgets import Label, ListItem, ListView
 
 from controller import TABLE_NAVIGATION_BINDINGS
@@ -14,6 +15,11 @@ class LauncherListItem(ListItem):
 
 class TableListView(ListView):
     BINDINGS = TABLE_NAVIGATION_BINDINGS
+
+    class LaunchRequested(Message):
+        def __init__(self, list_item: LauncherListItem) -> None:
+            super().__init__()
+            self.list_item = list_item
 
     def action_cursor_down(self) -> None:
         if not self.children:
@@ -34,6 +40,14 @@ class TableListView(ListView):
             self.index = len(self.children) - 1
         elif self.index > 0:
             self.index -= 1
+
+    def action_launch(self) -> None:
+        if self.index is None or not self.children:
+            return
+
+        list_item = self.children[self.index]
+        if isinstance(list_item, LauncherListItem):
+            self.post_message(self.LaunchRequested(list_item))
 
 
 class TableList(VerticalScroll):

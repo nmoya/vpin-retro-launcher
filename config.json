@@ -1,5 +1,6 @@
 {
     "orientation": "horizontal",
     "vpxtool_path": "/etc/profiles/per-user/nmoya/bin/vpxtool",
+    "vpinball_path": "/etc/profiles/per-user/nmoya/bin/vpinball",
     "tables_root": "/home/nmoya/VPinball"
 }
