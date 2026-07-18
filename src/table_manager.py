@@ -61,7 +61,7 @@ class TableManager:
 
     def _cover_path(self, table_path: str) -> str | None:
         table = Path(table_path)
-        for filename in ("cover.jpg", "cover.jpeg"):
+        for filename in ("cover.jpg", "cover.jpeg", "cover.png"):
             cover_path = table.with_name(filename)
             if cover_path.is_file():
                 return str(cover_path)

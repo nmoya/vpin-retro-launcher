@@ -46,6 +46,16 @@ def test_cover_path_finds_sibling_jpeg(tmp_path):
     assert manager._cover_path(str(table)) == str(cover)
 
 
+def test_cover_path_finds_sibling_png(tmp_path):
+    table = tmp_path / "table.vpx"
+    cover = tmp_path / "cover.png"
+    table.write_text("vpx", encoding="utf-8")
+    cover.write_text("cover", encoding="utf-8")
+    manager = object.__new__(TableManager)
+
+    assert manager._cover_path(str(table)) == str(cover)
+
+
 def test_cover_path_returns_none_when_missing(tmp_path):
     table = tmp_path / "table.vpx"
     table.write_text("vpx", encoding="utf-8")
