@@ -1,7 +1,7 @@
 from datetime import datetime
 
 from textual.app import ComposeResult
-from textual.containers import VerticalScroll
+from textual.containers import Horizontal, Vertical, VerticalScroll
 from textual.widgets import Static
 from rich import box
 from rich.markup import escape
@@ -19,13 +19,15 @@ class TableDetails(VerticalScroll):
 
     def compose(self) -> ComposeResult:
         yield Static(id="table-title", classes="details-title")
-        yield Static(id="table-cover", classes="details-card")
-        yield Static(id="table-stats", classes="details-card")
-        yield Static(id="table-high-score", classes="details-card")
-        yield Static("Table Info", classes="details-section-title")
-        yield Static(id="table-info", classes="details-body")
-        yield Static("Description", classes="details-section-title")
-        yield Static(id="table-description", classes="details-body")
+        with Horizontal(id="details-overview"):
+            yield Static(id="table-cover", classes="details-card")
+            with Vertical(id="details-summary"):
+                yield Static(id="table-stats", classes="details-card")
+                yield Static(id="table-high-score", classes="details-card")
+                yield Static("Description", classes="details-section-title")
+                yield Static(id="table-description", classes="details-body")
+                yield Static("Table Info", classes="details-section-title")
+                yield Static(id="table-info", classes="details-body")
 
     def update_table(self, item: TableItem, stats: TableStats) -> None:
         self.query_one("#table-title", Static).update(self._format_title(item))
@@ -40,12 +42,15 @@ class TableDetails(VerticalScroll):
         return f"[bold]{escape(title)}[/]"
 
     def _update_cover(self, item: TableItem) -> None:
+        overview = self.query_one("#details-overview", Horizontal)
         cover = self.query_one("#table-cover", Static)
         if not item.cover_path:
+            overview.add_class("no-cover")
             cover.display = False
             cover.update("")
             return
 
+        overview.remove_class("no-cover")
         cover.display = True
         cover.update(self.cover_renderer.render(item.cover_path))
 
@@ -77,7 +82,7 @@ class TableDetails(VerticalScroll):
         scores.add_column("Name", ratio=3)
         scores.add_column("Initials", justify="center", no_wrap=True, ratio=1)
         scores.add_column("Score", justify="right", no_wrap=True, ratio=3)
-        scores.add_column("Date", no_wrap=True, ratio=2)
+        scores.add_column("Date", justify="right", no_wrap=True, ratio=2)
 
         for index, score in enumerate(scores_to_show):
             style = "bold green" if index == 0 else ""

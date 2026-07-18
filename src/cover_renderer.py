@@ -14,7 +14,7 @@ TERMINAL_CELL_WIDTH_TO_HEIGHT = 0.5
 
 
 class CoverRenderer:
-    def __init__(self, width: int = 36) -> None:
+    def __init__(self, width: int = 72) -> None:
         self.width = width
         self.cache: dict[tuple[str, float, int, int], Text] = {}
 

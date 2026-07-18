@@ -56,6 +56,13 @@ def test_rows_are_automatic_from_two_by_three_ratio_and_terminal_cell_shape():
     assert CoverRenderer(width=48).rows == 36
 
 
+def test_default_cover_size_is_double_width():
+    renderer = CoverRenderer()
+
+    assert renderer.width == 72
+    assert renderer.rows == 54
+
+
 def test_render_returns_unavailable_text_when_chafa_is_missing(tmp_path, monkeypatch):
     cover = tmp_path / "cover.jpg"
     cover.write_bytes(b"image")

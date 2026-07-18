@@ -34,19 +34,42 @@ class VPinRetroLauncher(App[None]):
         text-style: bold;
     }
 
-    #table-list-pane,
-    #table-details-pane {
+    #table-list-pane {
         width: 1fr;
         height: 100%;
+        padding: 1;
         border: solid $accent;
     }
 
-    #table-list-pane {
+    #table-details-pane {
+        width: 4fr;
+        height: 100%;
         padding: 1;
+        border: solid $accent;
     }
 
-    #table-details-pane {
-        padding: 1;
+    #details-overview {
+        layout: horizontal;
+        width: 100%;
+        height: auto;
+    }
+
+    #details-overview.no-cover {
+        layout: vertical;
+    }
+
+    #table-cover {
+        width: auto;
+        margin-right: 1;
+    }
+
+    #details-summary {
+        width: 1fr;
+        height: auto;
+    }
+
+    #details-overview.no-cover #details-summary {
+        width: 100%;
     }
 
     .details-title {
