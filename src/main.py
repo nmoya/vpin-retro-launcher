@@ -185,9 +185,12 @@ class VPinRetroLauncher(App[None]):
             list_view.action_cursor_up()
 
     def _gamepad_launch(self) -> None:
-        list_view = self._table_list_view()
-        if list_view is not None:
-            list_view.action_launch()
+        try:
+            launcher = self.query_one(HorizontalLauncher)
+        except NoMatches:
+            return
+
+        launcher.launch_selected_table()
 
     def _table_list_view(self) -> TableListView | None:
         try:

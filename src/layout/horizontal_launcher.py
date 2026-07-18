@@ -18,6 +18,7 @@ from vpxtool_bridge import VPXToolBridge
 
 
 logger = logging.getLogger(__name__)
+LAUNCH_SUPPRESSION_SECONDS = 1.0
 
 
 class HorizontalLauncher(Horizontal):
@@ -37,6 +38,8 @@ class HorizontalLauncher(Horizontal):
         self.data_store = data_store
         self.gamepad_controller = gamepad_controller
         self.cover_renderer = cover_renderer
+        self.launch_in_progress = False
+        self.last_launch_finished_at = 0.0
 
     def compose(self) -> ComposeResult:
         yield TableList(self.items)
@@ -56,7 +59,29 @@ class HorizontalLauncher(Horizontal):
     def on_table_list_view_launch_requested(self, event: TableListView.LaunchRequested) -> None:
         self.launch_table(event.list_item)
 
+    def launch_selected_table(self) -> None:
+        list_view = self.query_one(TableListView)
+        if list_view.index is None or not list_view.children:
+            return
+
+        list_item = list_view.children[list_view.index]
+        if isinstance(list_item, LauncherListItem):
+            self.launch_table(list_item)
+
     def launch_table(self, list_item: LauncherListItem) -> None:
+        now = time.monotonic()
+        if self.launch_in_progress or now - self.last_launch_finished_at < LAUNCH_SUPPRESSION_SECONDS:
+            logger.info("Ignoring duplicate launch request")
+            return
+
+        self.launch_in_progress = True
+        try:
+            self._launch_table(list_item)
+        finally:
+            self.launch_in_progress = False
+            self.last_launch_finished_at = time.monotonic()
+
+    def _launch_table(self, list_item: LauncherListItem) -> None:
         item = list_item.item
         table_path = item.info.path
         current_md5 = self._md5(table_path)
