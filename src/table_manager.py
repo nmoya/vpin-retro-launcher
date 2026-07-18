@@ -1,5 +1,6 @@
 import hashlib
 import os
+from pathlib import Path
 
 from rich.progress import BarColumn, Progress, TextColumn
 
@@ -38,7 +39,7 @@ class TableManager:
                 info = self.vpxtool_bridge.info(path)
                 progress.update(task_id, current_name=info.name or os.path.basename(path))
                 scores = self.vpxtool_bridge.scores(path)
-                items.append(TableItem(info=info, scores=scores, md5=table_md5))
+                items.append(TableItem(info=info, scores=scores, md5=table_md5, cover_path=self._cover_path(path)))
                 progress.advance(task_id)
 
         return sorted(items, key=lambda item: item.info.name.lower())
@@ -57,6 +58,15 @@ class TableManager:
             for chunk in iter(lambda: file.read(1024 * 1024), b""):
                 digest.update(chunk)
         return digest.hexdigest()
+
+    def _cover_path(self, table_path: str) -> str | None:
+        table = Path(table_path)
+        for filename in ("cover.jpg", "cover.jpeg"):
+            cover_path = table.with_name(filename)
+            if cover_path.is_file():
+                return str(cover_path)
+
+        return None
 
 
 if __name__ == "__main__":

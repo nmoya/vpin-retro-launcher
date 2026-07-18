@@ -7,6 +7,7 @@ from rich import box
 from rich.markup import escape
 from rich.table import Table
 
+from cover_renderer import CoverRenderer
 from data import TableItem
 from vpin_data_store import TableStats
 
@@ -14,9 +15,11 @@ from vpin_data_store import TableStats
 class TableDetails(VerticalScroll):
     def __init__(self) -> None:
         super().__init__(id="table-details-pane")
+        self.cover_renderer = CoverRenderer()
 
     def compose(self) -> ComposeResult:
         yield Static(id="table-title", classes="details-title")
+        yield Static(id="table-cover", classes="details-card")
         yield Static(id="table-stats", classes="details-card")
         yield Static(id="table-high-score", classes="details-card")
         yield Static("Table Info", classes="details-section-title")
@@ -26,6 +29,7 @@ class TableDetails(VerticalScroll):
 
     def update_table(self, item: TableItem, stats: TableStats) -> None:
         self.query_one("#table-title", Static).update(self._format_title(item))
+        self._update_cover(item)
         self.query_one("#table-stats", Static).update(self._format_stats(stats))
         self.query_one("#table-high-score", Static).update(self._format_scores(item, stats))
         self.query_one("#table-info", Static).update(self._format_info(item))
@@ -34,6 +38,16 @@ class TableDetails(VerticalScroll):
     def _format_title(self, item: TableItem) -> str:
         title = item.info.name or "Untitled Table"
         return f"[bold]{escape(title)}[/]"
+
+    def _update_cover(self, item: TableItem) -> None:
+        cover = self.query_one("#table-cover", Static)
+        if not item.cover_path:
+            cover.display = False
+            cover.update("")
+            return
+
+        cover.display = True
+        cover.update(self.cover_renderer.render(item.cover_path))
 
     def _format_stats(self, stats: TableStats) -> str:
         last_played = self._format_date(stats.last_played_at) or "Never"

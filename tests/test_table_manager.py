@@ -24,3 +24,31 @@ def test_md5_matches_fixture_file():
     expected = hashlib.md5(fixture.read_bytes()).hexdigest()
 
     assert manager._md5(str(fixture)) == expected
+
+
+def test_cover_path_finds_sibling_jpg(tmp_path):
+    table = tmp_path / "table.vpx"
+    cover = tmp_path / "cover.jpg"
+    table.write_text("vpx", encoding="utf-8")
+    cover.write_text("cover", encoding="utf-8")
+    manager = object.__new__(TableManager)
+
+    assert manager._cover_path(str(table)) == str(cover)
+
+
+def test_cover_path_finds_sibling_jpeg(tmp_path):
+    table = tmp_path / "table.vpx"
+    cover = tmp_path / "cover.jpeg"
+    table.write_text("vpx", encoding="utf-8")
+    cover.write_text("cover", encoding="utf-8")
+    manager = object.__new__(TableManager)
+
+    assert manager._cover_path(str(table)) == str(cover)
+
+
+def test_cover_path_returns_none_when_missing(tmp_path):
+    table = tmp_path / "table.vpx"
+    table.write_text("vpx", encoding="utf-8")
+    manager = object.__new__(TableManager)
+
+    assert manager._cover_path(str(table)) is None

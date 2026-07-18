@@ -5,6 +5,7 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.14"
 dependencies = [
+    "pillow>=12.3.0",
     "pygame-ce>=2.5.7",
     "textual>=8.2.8",
     "textual-dev>=1.8.0",

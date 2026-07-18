@@ -40,3 +40,4 @@ class TableItem:
     info: TableInfo
     scores: list[TableScore]
     md5: str
+    cover_path: str | None = None
