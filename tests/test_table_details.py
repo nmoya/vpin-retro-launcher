@@ -1,5 +1,8 @@
 from cover_renderer import CoverRenderer
+from data import TableInfo, TableItem
 from layout.table_details import TableDetails
+import theme
+from vpin_data_store import HighScoreRecord, TableStats
 
 
 def table_details():
@@ -27,3 +30,50 @@ def test_format_duration():
     assert details._format_duration(65) == "1m 5s"
     assert details._format_duration(3660) == "1h 1m"
     assert details._format_duration(-1) == "0s"
+
+
+def test_format_scores_highlights_first_score_with_first_seen_at():
+    details = table_details()
+    item = table_item()
+    stats = TableStats(
+        high_scores=[
+            HighScoreRecord("Imported", "IMP", "1000", None),
+            HighScoreRecord("New", "NEW", "2000", "2026-10-06T12:00:00Z"),
+            HighScoreRecord("Newer", "NWR", "3000", "2026-10-07T12:00:00Z"),
+        ]
+    )
+
+    table = details._format_scores(item, stats)
+
+    assert [row.style for row in table.rows] == ["", f"bold {theme.TOP_HIGH_SCORE_TEXT}", ""]
+
+
+def test_format_scores_does_not_highlight_imported_scores():
+    details = table_details()
+    item = table_item()
+    stats = TableStats(
+        high_scores=[
+            HighScoreRecord("Imported", "IMP", "1000", None),
+            HighScoreRecord("Also Imported", "IMP", "2000", None),
+        ]
+    )
+
+    table = details._format_scores(item, stats)
+
+    assert [row.style for row in table.rows] == ["", ""]
+
+
+def table_item():
+    return TableItem(
+        info=TableInfo(
+            name="Table",
+            vpx_version="",
+            version="",
+            published_date="",
+            revision="",
+            description="",
+            path="/table.vpx",
+        ),
+        scores=[],
+        md5="abc123",
+    )

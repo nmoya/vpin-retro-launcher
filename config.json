@@ -3,6 +3,6 @@
     "vpxtool_path": "/etc/profiles/per-user/nmoya/bin/vpxtool",
     "vpinball_path": "/etc/profiles/per-user/nmoya/bin/vpinball",
     "chafa_path": "/etc/profiles/per-user/nmoya/bin/chafa",
-    "cover_art_width": 72,
+    "cover_art_width": 80,
     "tables_root": "/home/nmoya/VPinball"
 }

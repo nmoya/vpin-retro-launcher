@@ -69,6 +69,7 @@ class TableDetails(VerticalScroll):
     def _format_scores(self, item: TableItem, stats: TableStats) -> Table | str:
         scores_to_show = stats.high_scores or item.scores
         first_seen_by_score = {score.identity(): score.first_seen_at for score in stats.high_scores}
+        highlighted_score = next((score.identity() for score in stats.high_scores if score.first_seen_at), None)
 
         if not scores_to_show:
             return (
@@ -89,8 +90,9 @@ class TableDetails(VerticalScroll):
         scores.add_column("Date", justify="right", no_wrap=True, ratio=2)
 
         for index, score in enumerate(scores_to_show):
-            style = f"bold {theme.TOP_HIGH_SCORE_TEXT}" if index == 0 else ""
-            first_seen_at = first_seen_by_score.get((score.name, score.initials, score.score))
+            score_identity = (score.name, score.initials, score.score)
+            style = f"bold {theme.TOP_HIGH_SCORE_TEXT}" if score_identity == highlighted_score else ""
+            first_seen_at = first_seen_by_score.get(score_identity)
             scores.add_row(
                 self._display_value(score.name) if self._has_value(score.name) else "Unknown",
                 self._display_value(score.initials) if self._has_value(score.initials) else "-",

@@ -7,6 +7,7 @@ from textual.widgets import Header, Static
 
 from config import Config
 from cover_renderer import CoverRenderer
+from data import TableItem
 from gamepad_controller import GamepadController, GamepadEvent
 from layout.horizontal_launcher import HorizontalLauncher
 from layout.table_list import TableListView
@@ -16,6 +17,18 @@ from vpin_data_store import VPinDataStore
 
 LOG_FORMAT = "%(asctime)s %(levelname)s [%(name)s] %(message)s"
 GAMEPAD_POLL_SECONDS = 1 / 60
+
+
+def sort_tables_by_recent(items: list[TableItem], data_store: VPinDataStore) -> None:
+    def table_name(item: TableItem) -> str:
+        return (item.info.name or item.info.path).lower()
+
+    played_items = [item for item in items if data_store.table_stats(item.md5).last_played_at]
+    unplayed_items = [item for item in items if not data_store.table_stats(item.md5).last_played_at]
+    played_items.sort(key=table_name)
+    played_items.sort(key=lambda item: data_store.table_stats(item.md5).last_played_at, reverse=True)
+    unplayed_items.sort(key=table_name)
+    items[:] = played_items + unplayed_items
 
 
 class VPinRetroLauncher(App[None]):
@@ -209,6 +222,7 @@ def main() -> None:
     data_store = VPinDataStore("./vpin_data.json")
     for item in table_manager.items:
         data_store.import_table(item.md5, item.info.name or item.info.path, item.scores)
+    sort_tables_by_recent(table_manager.items, data_store)
 
     VPinRetroLauncher(table_manager, data_store, config, cover_renderer).run()
 
