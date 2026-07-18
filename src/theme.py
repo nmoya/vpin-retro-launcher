@@ -1,0 +1,19 @@
+# Main app surfaces
+APP_BACKGROUND = "black"
+TABLE_LIST_BACKGROUND = "#2b2b2b"
+TABLE_DETAILS_BACKGROUND = "black"
+DETAILS_CARD_BACKGROUND = "black"
+FOOTER_BACKGROUND = "#1f1f1f"
+
+# Text colors
+TABLE_LIST_TEXT = "white"
+TABLE_DETAILS_TEXT = "white"
+FOOTER_TEXT = "#a0a0a0"
+TITLE_TEXT = "white"
+SECTION_TITLE_TEXT = "#d0d0d0"
+MUTED_TEXT = "#808080"
+
+# Rich-rendered details
+STATS_TITLE_TEXT = "cyan"
+HIGH_SCORE_TITLE_TEXT = "yellow"
+TOP_HIGH_SCORE_TEXT = "green"

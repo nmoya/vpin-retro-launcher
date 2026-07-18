@@ -10,6 +10,7 @@ from gamepad_controller import GamepadController
 from layout.horizontal_launcher import HorizontalLauncher
 from layout.table_list import TableListView
 from table_manager import TableManager
+import theme
 from vpin_data_store import VPinDataStore
 
 LOG_FORMAT = "%(asctime)s %(levelname)s [%(name)s] %(message)s"
@@ -17,94 +18,104 @@ GAMEPAD_POLL_SECONDS = 1 / 60
 
 
 class VPinRetroLauncher(App[None]):
-    CSS = """
-    Screen {
+    CSS = f"""
+    Screen {{
         layout: vertical;
-    }
+        background: {theme.APP_BACKGROUND};
+    }}
 
-    #launcher {
+    #launcher {{
         height: 1fr;
-    }
+    }}
 
-    #controls-footer {
+    #controls-footer {{
         height: 1;
         padding: 0 1;
-        background: $surface;
-        color: $text-muted;
+        background: {theme.FOOTER_BACKGROUND};
+        color: {theme.FOOTER_TEXT};
         text-style: bold;
-    }
+    }}
 
-    #table-list-pane {
+    #table-list-pane {{
         width: 1fr;
         height: 100%;
         padding: 1;
-        border: solid $accent;
-    }
+        background: {theme.TABLE_LIST_BACKGROUND};
+        color: {theme.TABLE_LIST_TEXT};
+    }}
 
-    #table-details-pane {
+    #table-details-pane {{
         width: 4fr;
         height: 100%;
         padding: 1;
-        border: solid $accent;
-    }
+        background: {theme.TABLE_DETAILS_BACKGROUND};
+        color: {theme.TABLE_DETAILS_TEXT};
+    }}
 
-    #details-overview {
+    #details-overview {{
         layout: horizontal;
         width: 100%;
         height: auto;
-    }
+        background: {theme.TABLE_DETAILS_BACKGROUND};
+    }}
 
-    #details-overview.no-cover {
+    #details-overview.no-cover {{
         layout: vertical;
-    }
+    }}
 
-    #table-cover {
+    #table-cover {{
         width: auto;
         margin-right: 1;
-    }
+    }}
 
-    #details-summary {
+    #details-summary {{
         width: 1fr;
         height: auto;
-    }
+        background: {theme.TABLE_DETAILS_BACKGROUND};
+    }}
 
-    #details-overview.no-cover #details-summary {
+    #details-overview.no-cover #details-summary {{
         width: 100%;
-    }
+    }}
 
-    .details-title {
+    .details-title {{
         width: 100%;
         margin-bottom: 1;
-        color: $text;
+        color: {theme.TITLE_TEXT};
         text-style: bold;
-    }
+        background: {theme.TABLE_DETAILS_BACKGROUND};
+    }}
 
-    .details-card {
+    .details-card {{
         width: 100%;
         margin-bottom: 1;
         padding: 1;
-        border: tall $accent;
-        background: $surface;
-    }
+        background: {theme.DETAILS_CARD_BACKGROUND};
+    }}
 
-    .details-section-title {
+    .details-section-title {{
         margin-top: 1;
-        color: $accent;
+        color: {theme.SECTION_TITLE_TEXT};
         text-style: bold;
-    }
+        background: {theme.TABLE_DETAILS_BACKGROUND};
+    }}
 
-    .details-body {
+    .details-body {{
         margin-top: 1;
         width: 100%;
-    }
+        color: {theme.TABLE_DETAILS_TEXT};
+        background: {theme.TABLE_DETAILS_BACKGROUND};
+    }}
 
-    #table-list {
+    #table-list {{
         height: auto;
-    }
+        background: {theme.TABLE_LIST_BACKGROUND};
+    }}
 
-    #table-details {
+    #table-details {{
         width: 100%;
-    }
+        background: {theme.TABLE_DETAILS_BACKGROUND};
+    }}
     """
 
     def __init__(self, table_manager: TableManager, data_store: VPinDataStore, config: Config) -> None:

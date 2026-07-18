@@ -9,6 +9,7 @@ from rich.table import Table
 
 from cover_renderer import CoverRenderer
 from data import TableItem
+import theme
 from vpin_data_store import TableStats
 
 
@@ -39,7 +40,7 @@ class TableDetails(VerticalScroll):
 
     def _format_title(self, item: TableItem) -> str:
         title = item.info.name or "Untitled Table"
-        return f"[bold]{escape(title)}[/]"
+        return f"[bold {theme.TITLE_TEXT}]{escape(title)}[/]"
 
     def _update_cover(self, item: TableItem) -> None:
         overview = self.query_one("#details-overview", Horizontal)
@@ -58,7 +59,7 @@ class TableDetails(VerticalScroll):
         last_played = self._format_date(stats.last_played_at) or "Never"
         return "\n".join(
             [
-                "[bold cyan]Stats[/]",
+                f"[bold {theme.STATS_TITLE_TEXT}]Stats[/]",
                 f"[dim]Launches:[/] {stats.launches_count}",
                 f"[dim]Total Play Time:[/] {self._format_duration(stats.total_play_time_seconds)}",
                 f"[dim]Last Played:[/] {last_played}",
@@ -70,14 +71,17 @@ class TableDetails(VerticalScroll):
         first_seen_by_score = {score.identity(): score.first_seen_at for score in stats.high_scores}
 
         if not scores_to_show:
-            return "[bold yellow]High Scores[/]\n[dim]No high scores found[/]"
+            return (
+                f"[bold {theme.HIGH_SCORE_TITLE_TEXT}]High Scores[/]\n"
+                f"[{theme.MUTED_TEXT}]No high scores found[/]"
+            )
 
         scores = Table(
             title="High Scores",
             box=box.SIMPLE_HEAVY,
             expand=True,
             show_lines=False,
-            title_style="bold yellow",
+            title_style=f"bold {theme.HIGH_SCORE_TITLE_TEXT}",
         )
         scores.add_column("Name", ratio=3)
         scores.add_column("Initials", justify="center", no_wrap=True, ratio=1)
@@ -85,7 +89,7 @@ class TableDetails(VerticalScroll):
         scores.add_column("Date", justify="right", no_wrap=True, ratio=2)
 
         for index, score in enumerate(scores_to_show):
-            style = "bold green" if index == 0 else ""
+            style = f"bold {theme.TOP_HIGH_SCORE_TEXT}" if index == 0 else ""
             first_seen_at = first_seen_by_score.get((score.name, score.initials, score.score))
             scores.add_row(
                 self._display_value(score.name) if self._has_value(score.name) else "Unknown",
@@ -111,13 +115,13 @@ class TableDetails(VerticalScroll):
         ]
 
         if not available_fields:
-            return "[dim]No table metadata available[/]"
+            return f"[{theme.MUTED_TEXT}]No table metadata available[/]"
 
         return "\n".join(available_fields)
 
     def _format_description(self, item: TableItem) -> str:
         if not self._has_value(item.info.description):
-            return "[dim]No description available.[/]"
+            return f"[{theme.MUTED_TEXT}]No description available.[/]"
 
         return escape(self._display_value(item.info.description))
 
