@@ -3,14 +3,19 @@ from datetime import datetime
 from textual.app import ComposeResult
 from textual.containers import Horizontal, Vertical, VerticalScroll
 from textual.widgets import Static
+from pyfiglet import Figlet
 from rich import box
 from rich.markup import escape
 from rich.table import Table
+from rich.text import Text
 
 from cover_renderer import CoverRenderer
 from data import TableItem
 import theme
 from vpin_data_store import TableStats
+
+DEFAULT_TITLE_WIDTH = 120
+TITLE_FONT = "small"
 
 
 class TableDetails(VerticalScroll):
@@ -31,16 +36,19 @@ class TableDetails(VerticalScroll):
                 yield Static(id="table-info", classes="details-body")
 
     def update_table(self, item: TableItem, stats: TableStats) -> None:
-        self.query_one("#table-title", Static).update(self._format_title(item))
+        title_widget = self.query_one("#table-title", Static)
+        title_widget.update(self._format_title(item, title_widget.size.width or self.size.width))
         self._update_cover(item)
         self.query_one("#table-stats", Static).update(self._format_stats(stats))
         self.query_one("#table-high-score", Static).update(self._format_scores(item, stats))
         self.query_one("#table-info", Static).update(self._format_info(item))
         self.query_one("#table-description", Static).update(self._format_description(item))
 
-    def _format_title(self, item: TableItem) -> str:
+    def _format_title(self, item: TableItem, width: int | None = None) -> Text:
         title = item.info.name or "Untitled Table"
-        return f"[bold {theme.TITLE_TEXT}]{escape(title)}[/]"
+        render_width = max(width or DEFAULT_TITLE_WIDTH, len(title), 1)
+        rendered = Figlet(font=TITLE_FONT, width=render_width).renderText(title).rstrip()
+        return Text(rendered, style=f"bold {theme.TITLE_TEXT}", no_wrap=True)
 
     def _update_cover(self, item: TableItem) -> None:
         overview = self.query_one("#details-overview", Horizontal)

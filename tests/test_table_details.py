@@ -32,6 +32,25 @@ def test_format_duration():
     assert details._format_duration(-1) == "0s"
 
 
+def test_format_title_uses_large_ascii_rendering():
+    details = table_details()
+    title = details._format_title(table_item())
+
+    assert "Table" not in title.plain
+    assert "\n" in title.plain
+
+
+def test_format_title_uses_available_width_without_changing_font():
+    details = table_details()
+    item = table_item("Jurassic Park Data East")
+
+    narrow_title = details._format_title(item, width=30)
+    wide_title = details._format_title(item, width=120)
+
+    assert len(wide_title.plain.splitlines()) < len(narrow_title.plain.splitlines())
+    assert max(len(line) for line in wide_title.plain.splitlines()) <= 120
+
+
 def test_format_scores_highlights_first_score_with_first_seen_at():
     details = table_details()
     item = table_item()
@@ -63,10 +82,10 @@ def test_format_scores_does_not_highlight_imported_scores():
     assert [row.style for row in table.rows] == ["", ""]
 
 
-def table_item():
+def table_item(name="Table"):
     return TableItem(
         info=TableInfo(
-            name="Table",
+            name=name,
             vpx_version="",
             version="",
             published_date="",

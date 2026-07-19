@@ -94,7 +94,7 @@ class VPinRetroLauncher(App[None]):
 
     .details-title {{
         width: 100%;
-        margin-bottom: 1;
+        margin-bottom: 2;
         color: {theme.TITLE_TEXT};
         text-style: bold;
         background: {theme.TABLE_DETAILS_BACKGROUND};
