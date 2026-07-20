@@ -98,7 +98,7 @@ class TableDetails(VerticalScroll):
         scores.add_column("Date", justify="right", no_wrap=True, ratio=2)
 
         for index, score in enumerate(scores_to_show):
-            score_identity = (score.name, score.initials, score.score)
+            score_identity = (score.initials, score.score)
             style = f"bold {theme.TOP_HIGH_SCORE_TEXT}" if score_identity == highlighted_score else ""
             first_seen_at = first_seen_by_score.get(score_identity)
             scores.add_row(

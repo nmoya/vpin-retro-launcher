@@ -45,7 +45,7 @@ def test_update_high_scores_preserves_existing_and_timestamps_new_scores(tmp_pat
     assert [score.first_seen_at for score in stats.high_scores] == [None, "2026-10-06T12:00:00Z"]
 
 
-def test_score_identity_includes_name_initials_and_score(tmp_path):
+def test_score_identity_includes_initials_and_score(tmp_path):
     store = VPinDataStore(str(tmp_path / "vpin_data.json"))
     original = TableScore("Player One", "PO", "1000")
     same_name_new_score = TableScore("Player One", "PO", "2000")
@@ -60,6 +60,32 @@ def test_score_identity_includes_name_initials_and_score(tmp_path):
 
     stats = store.table_stats("abc123")
     assert [score.first_seen_at for score in stats.high_scores] == [None, "2026-10-06T12:00:00Z"]
+
+
+def test_score_identity_preserves_timestamp_when_rank_name_changes(tmp_path):
+    store = VPinDataStore(str(tmp_path / "vpin_data.json"))
+    existing_score = TableScore("#1", "MOY", "1000")
+    new_top_score = TableScore("#1", "MOY", "2000")
+    shifted_score = TableScore("#2", "MOY", "1000")
+
+    store.update_high_scores(
+        "abc123",
+        "The Goonies",
+        [existing_score],
+        timestamp="2026-10-05T12:00:00Z",
+    )
+    store.update_high_scores(
+        "abc123",
+        "The Goonies",
+        [new_top_score, shifted_score],
+        timestamp="2026-10-06T12:00:00Z",
+    )
+
+    stats = store.table_stats("abc123")
+    assert [score.first_seen_at for score in stats.high_scores] == [
+        "2026-10-06T12:00:00Z",
+        "2026-10-05T12:00:00Z",
+    ]
 
 
 def test_record_launch_and_play_time_round_trip(tmp_path):

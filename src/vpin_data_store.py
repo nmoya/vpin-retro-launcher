@@ -33,8 +33,8 @@ class HighScoreRecord:
             "first_seen_at": self.first_seen_at,
         }
 
-    def identity(self) -> tuple[str, str, str]:
-        return (self.name, self.initials, self.score)
+    def identity(self) -> tuple[str, str]:
+        return (self.initials, self.score)
 
 
 @dataclass
@@ -154,7 +154,7 @@ class VPinDataStore:
                 name=score.name,
                 initials=score.initials,
                 score=score.score,
-                first_seen_at=existing_scores.get((score.name, score.initials, score.score), first_seen_at),
+                first_seen_at=existing_scores.get((score.initials, score.score), first_seen_at),
             )
             for score in scores
         ]
